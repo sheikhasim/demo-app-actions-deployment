@@ -1,0 +1,87 @@
+name: "CD"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+
+    name: "Terraform"
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_version: ${{ steps.terraform_outputs.outputs.image_version }}
+
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    permissions:
+      id-token: write # This is required for aws oidc connection
+      contents: read # This is required for actions/checkout
+      pull-requests: write # This is required for gh bot to comment PR
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials from AWS account
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: GitHub-OIDC-TERRAFORM
+          aws-region: ${{secrets.AWS_REGION}}
+          mask-aws-account-id: true   
+
+      - name: file permissions
+        run: |
+             chmod +x ../terraform/commands/install_docker.sh
+             chmod +x ../terraform/commands/pull_push.sh  
+        shell: bash
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+                  
+      - name: Terraform Init
+        id: init
+        run: terraform init 
+
+      - name: Terraform destroy
+        run: |
+             terraform destroy -auto-approve
+             exit 1
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan  -no-color -input=true 
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+      
+      - name: Wait for approval
+        uses: trstringer/manual-approval@v1
+        with:
+         secret: ${{secrets.GH_TOKEN }}
+         approvers: kppilot
+         minimum-approvals: 1
+         issue-title: "Approve deployment in ${{ github.ref_name }}"
+         exclude-workflow-initiator-as-approver: true
+         timeout-minutes: 10
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: | 
+            terraform apply -auto-approve
+             
+        
+      - name : Terraform outputs
+        id: terraform_outputs
+        run: |
+             echo $(terraform-bin output -raw image_version)
+             echo "image_version=$(terraform-bin output -raw image_version)">>"$GITHUB_OUTPUT"
