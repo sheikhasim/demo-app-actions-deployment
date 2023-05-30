@@ -1,1 +1,1 @@
-The `cd.yml` workflow in `.github/workflows` directory executes the terraform commands for deployment.
+The `cd.yml` workflow in `.github/workflows` directory intiates the terraform plan and spins up the infrastructure present in `terraform` directory.
