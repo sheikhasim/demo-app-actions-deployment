@@ -1,13 +1,6 @@
 name: Schema Check in CD
  
-on:
-  #push:
-    #branches:
-      #- main
-  #pull_request:
-    #branches:
-      #- main
-    workflow_call:
+on: workflow_call:
       
  
 jobs:
@@ -41,3 +34,28 @@ jobs:
       - name: Run check against prod
         run: |
           rover graph check my-graph@prod --schema ./test.graphql --background
+
+  schema-compose:
+    if: github.event_name == 'push' && github.workflow == 'Workflow B'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: supergraph compose
+        run: |
+              rover supergraph compose --config ./supergraphConfig.yaml | cat >> supergraph.graphql
+  
+  schema-publish:
+   if: github.event_name == 'push' && github.workflow == 'Workflow B'
+   runs-on: ubuntu-latest
+
+   steps:
+      - uses: actions/checkout@v2
+
+      - name: supergraph publish
+        run: |
+            rover subgraph publish my-supergraph@my-variant \
+            --schema "./accounts/schema.graphql" \
+            --name accounts \
+            --routing-url "https://my-running-subgraph.com/api"
