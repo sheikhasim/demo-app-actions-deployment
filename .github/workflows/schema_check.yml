@@ -1,6 +1,7 @@
 name: Schema Check in CD
  
-on: workflow_call:
+on: 
+ workflow_call:
       
  
 jobs:
@@ -36,7 +37,7 @@ jobs:
           rover graph check my-graph@prod --schema ./test.graphql --background
 
   schema-compose:
-    if: github.event_name == 'push' && github.workflow == 'Workflow B'
+    if: github.event_name == 'push' && github.workflow == 'terraform.yml'
     runs-on: ubuntu-latest
 
     steps:
@@ -47,7 +48,7 @@ jobs:
               rover supergraph compose --config ./supergraphConfig.yaml | cat >> supergraph.graphql
   
   schema-publish:
-   if: github.event_name == 'push' && github.workflow == 'Workflow B'
+   if: github.event_name == 'push' && github.workflow == 'terraform.yml'
    runs-on: ubuntu-latest
 
    steps:
