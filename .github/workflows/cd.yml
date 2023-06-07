@@ -10,7 +10,7 @@ jobs:
       contents: read
       packages: write
     uses: ./.github/workflows/schema_check.yml
-    secrets: inherit
+    
 
   terraform:
 
