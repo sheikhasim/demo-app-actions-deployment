@@ -4,6 +4,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  call_schema_check:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write
+    uses: ./.github/workflows/schema_check.yml
+    secrets: inherit
+
   terraform:
 
     name: "Terraform"
