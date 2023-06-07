@@ -42,7 +42,7 @@ jobs:
 
       - name: file permissions
         run: |
-             chmod +x ../terraform/commands/install_docker.sh
+             
              chmod +x ../terraform/commands/pull_push.sh  
         shell: bash
 
