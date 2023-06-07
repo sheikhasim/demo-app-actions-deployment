@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  call_schema_check:
+  call_schema_check_job:
     permissions: 
       contents: read
       packages: write
     uses: ./.github/workflows/schema_check.yml
     
 
-  terraform:
+  call_terraform_job:
    needs: call_schema_check
    permissions: 
       contents: read
