@@ -40,15 +40,6 @@ jobs:
         id: init
         run: terraform init 
 
-      - name: Terraform destroy
-        run: |
-             terraform destroy -auto-approve
-             exit 1
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
-
       - name: Terraform Plan
         id: plan
         run: terraform plan  -no-color -input=true 
