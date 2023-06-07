@@ -1,0 +1,38 @@
+name: Schema Check in CD
+ 
+on:
+  #push:
+    #branches:
+      #- main
+  #pull_request:
+    #branches:
+      #- main
+    workflow_call:
+      
+ 
+jobs:
+  schema-check:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+ 
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+ 
+      - name: Install Rover
+        run: |
+          curl -sSL https://rover.apollo.dev/nix/v0.14.1 | sh
+ 
+      - name: Run Schema Check
+        run: rover subgraph check --schema=path/to/schema.graphql
+ 
+      - name: Apollo Studio App Integration
+        uses: apollographql/rover-action@v1
+        with:
+          subgraph: my-subgraph
+          graph-ref: my-graph
+          schema-path: path/to/schema.graphql
