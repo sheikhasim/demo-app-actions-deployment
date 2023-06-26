@@ -1,5 +1,7 @@
 name: "Terraform"
-on: workflow_call
+on: 
+ workflow_call:
+ workflow_dispatch:
 jobs:
   terraform:
     runs-on: ubuntu-latest
